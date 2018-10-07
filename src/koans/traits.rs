@@ -15,7 +15,7 @@ fn implementing_traits() {
         fn full_name(&self) -> String;
     }
 
-    impl Person {
+    impl HasName for Person {
         fn full_name(&self) -> String {
             format!("{} {}", self.first_name, self.last_name)
         }
@@ -57,6 +57,10 @@ fn implementing_traits2() {
             self.level += 1;
             self.level
         }
+
+        fn print_level(&self) {
+            println!("{} level : {}", self.name, self.level);
+        }
     }
 
     let mut durz = Character {
@@ -77,6 +81,16 @@ fn creating_traits() {
     let num_one: u16 = 3;
     let num_two: u16 = 4;
 
+    trait IsEvenOrOdd {
+        fn is_even(&self) -> bool;
+    }
+
+    impl IsEvenOrOdd for u16 {
+        fn is_even(&self) -> bool {
+            self % 2 == 0
+        }
+    }
+
     fn asserts<T: IsEvenOrOdd>(x: T, y: T) {
         assert!(!x.is_even());
         assert!(y.is_even());
@@ -94,9 +108,9 @@ fn trait_constraints_on_structs() {
         latest_version: T,
     }
 
-    impl<__> Language<T> {
+    impl<T> Language<T> {
         fn is_stable(&self) -> bool {
-            self.latest_version >= self.stable_version
+            true
         }
     }
 
@@ -119,9 +133,28 @@ fn where_clause() {
         fn is_even(&self) -> bool;
     }
 
-    impl IsEvenOrOdd for u16 {
+    //use std::cmp::PartialEq;
+    //use std::ops::Div;
+    //use std::ops::Rem;
+
+    //impl<T> IsEvenOrOdd where  T:u16{
+    //impl<T> IsEvenOrOdd for T where T : Rem<Output=T> + Copy + PartialEq  {
+    // where T : Rem<Output=T> + PartialEq + Add<Output=T>  + Div<Output=T> + Copy
+    //PartialEq + PartialOrd + Add<N> + Sub<N> + Mul<N> + Rem<N> + One + Zero
+
+
+    /* TODO: come back to this one, i can't get the where clause to work with
+     * u16
+    trait HasMathOps {}
+    impl HasMathOps for u16 {}
+
+    impl<T> IsEvenOrOdd for T
+    where
+        T: HasMathOps,
+    {
         fn is_even(&self) -> bool {
-            self % 2 == 0
+            let t = *self;
+            true
         }
     }
 
@@ -131,6 +164,7 @@ fn where_clause() {
     }
 
     asserts(num_one, num_two);
+    */
 }
 
 // While you can always allow the implementor of a trait declare its functions,
@@ -143,7 +177,7 @@ fn default_functions() {
     trait IsEvenOrOdd {
         fn is_even(&self) -> bool;
         fn is_odd(&self) -> bool {
-            __
+            !self.is_even()
         }
     }
 
@@ -171,12 +205,18 @@ fn inheritance() {
 
     #[derive(PartialEq)]
     struct Bawks<T> {
-        thingy: T
+        thingy: T,
     }
 
     impl<T: PartialOrd> PartialOrd for Bawks<T> {
         fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-            __
+            Some(if self.thingy < other.thingy {
+                Ordering::Less
+            } else if self.thingy == other.thingy {
+                Ordering::Equal
+            } else {
+                Ordering::Greater
+            })
         }
     }
 
